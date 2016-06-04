@@ -5,7 +5,6 @@ import csv
 from datetime import date
 import account
 
-## TODO clean up for use with Account
 class LoanManagement(tk.Tk):
     def __init__(self, parent, loans):
         '''create window
@@ -101,7 +100,7 @@ class LoanManagement(tk.Tk):
         self.bal.pack(side = 'left', fill = 'x', expand = 1)
         self.MonthVar = tk.IntVar()
         self.mth = tk.Entry(frame3, textvariable = self.MonthVar, width = 5, 
-            bd = 0, justify = 'center', state = 'disabled')
+            bd = 2, justify = 'center', state = 'disabled')
         self.mth.pack(side = 'left')
         self.MonthVar.set(1)
 
@@ -136,7 +135,6 @@ class LoanManagement(tk.Tk):
         self.pay.config(state = 'normal')
         self.bal.config(state = 'normal')
         self.mth.config(state = 'normal')
-        self.reset()
 
 
     def reset(self):
@@ -206,7 +204,7 @@ class LoanManagement(tk.Tk):
     def save_add(self):
         '''add loan to loan object list and listbox
         '''
-        ## TODO do not allow original Entry text to remain upon save
+        ## TODO error check to make sure all fields have appropriate value types
         loans.append(account.Loan(self.TypeVar.get(), self.DateVar.get(), 
             self.OrigVar.get(), self.AprVar.get(), self.MonthPayVar.get(),
             bal = self.CurrVar.get(), extra_payment = self.ExtraPayVar.get()))
@@ -266,7 +264,7 @@ class LoanManagement(tk.Tk):
         
         
     def check_payoff(self):
-        '''show years/months to payoff based on current
+        '''show years/months to payoff
         '''
         l = loans[self.index]
         ob = l.get_balance()
@@ -325,7 +323,7 @@ def on_closing():
                     getattr(x, 'orig_bal'), 
                     x.get_balance()), 
                 reverse = True)
-            ## TODO save changes
+            ## save changes
             loans.sort(
                 key = lambda x: 
                     (getattr(x, 'r'), getattr(x, 'orig_bal')), 
@@ -344,7 +342,7 @@ def on_closing():
                 d['payment'].append(getattr(l, 'payment'))
                 d['extraPayment'].append(getattr(l, 'extra_payment'))
             debts = pd.DataFrame(d)
-            debts.to_csv('debts.csv')
+            debts.to_csv('debts.csv', index = False)
         app.destroy()   
     else:
         app.destroy()
@@ -358,8 +356,8 @@ if __name__ == '__main__':
     loans = []
     for i in range(len(debts)):
         d = debts.values[i]
-        loans.append(account.Loan(d[4], d[3], d[6], d[0], d[5], 
-                bal = d[1], extra_payment = d[7], asof = d[2]))
+        loans.append(account.Loan(d[5], d[3], d[6], d[0], d[7], 
+                bal = d[1], extra_payment = d[4], asof = d[2]))
     app = LoanManagement(None, loans)
     edited = False
     app.title('Loan Manager')
